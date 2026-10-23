@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 interface ModelViewerProps {
@@ -28,7 +29,8 @@ async function loadModel(src: string, color: string, onProgress: (p: number) => 
     return mesh;
   }
 
-  const gltf = await new GLTFLoader().loadAsync(src, progress);
+  // Models converted from STEP are meshopt-compressed (several times smaller), so register the decoder.
+  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(src, progress);
   return gltf.scene;
 }
 

@@ -1,7 +1,7 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
 import { lazy, Suspense, useState } from 'react';
 import { SiGithub } from 'react-icons/si';
-import { getProjectBySlug, mediaCaption, mediaPoster, mediaSrc } from '../data/projects';
+import { formatUpdateDate, getProjectBySlug, mediaCaption, mediaPoster, mediaSrc } from '../data/projects';
 import type { Category, MediaItem, ProjectModel, ProjectUpdate } from '../data/projects';
 import ProjectMedia, { mediaKind } from '../components/ProjectMedia';
 
@@ -107,7 +107,7 @@ function UpdatesTimeline({ updates, dotClass }: { updates: ProjectUpdate[]; dotC
             className={`absolute -left-[7px] top-1.5 w-3 h-3 rounded-full ring-4 ring-slate-50 ${dotClass}`}
             aria-hidden="true"
           />
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{u.date}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{formatUpdateDate(u.date)}</p>
           <h3 className="font-semibold text-slate-900 mt-1">{u.title}</h3>
           <p className="text-slate-700 leading-relaxed mt-1">{u.text}</p>
           {u.media && (
@@ -156,7 +156,7 @@ export default function ProjectDetail() {
   const accentBadge = isCS
     ? 'bg-blue-100 text-blue-700 border-blue-200'
     : 'bg-emerald-100 text-emerald-700 border-emerald-200';
-  const overviewPath = `/projects/${cat}`;
+  const overviewPath = `/?category=${cat}`;
   const overviewLabel = isCS ? 'Computer Science' : 'Mechanical Engineering';
 
   return (
@@ -355,7 +355,7 @@ export default function ProjectDetail() {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Back to {overviewLabel} overview
+            Back to {overviewLabel} projects
           </Link>
         </div>
 

@@ -1,33 +1,69 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { useMemo } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { formatUpdateDate, getRecentUpdates, heroTiles, mediaPoster, mediaSrc, projects } from '../data/projects';
+import type { Category } from '../data/projects';
+import ProjectCard from '../components/ProjectCard';
+import { mediaKind } from '../components/ProjectMedia';
+
+// ── Photo mosaic ──────────────────────────────────────────────────────────────
+const MOSAIC_ROWS = 5;
+
+function shuffle<T>(items: T[]): T[] {
+  const a = [...items];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Rows of project photos drifting in alternating directions. Shuffled on each visit;
+// holds still for visitors who prefer reduced motion.
+function PhotoMosaic() {
+  const rows = useMemo(
+    () => Array.from({ length: MOSAIC_ROWS }, () => shuffle(heroTiles)),
+    []
+  );
+
+  return (
+    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-[-10%] flex flex-col justify-center gap-3 -rotate-6">
+        {rows.map((tiles, r) => (
+          <div
+            key={r}
+            className="flex w-max gap-3 motion-safe:animate-marquee even:motion-safe:animate-marquee-reverse"
+            style={{ '--marquee-duration': `${90 + r * 15}s` } as React.CSSProperties}
+          >
+            {[...tiles, ...tiles].map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt=""
+                className="w-56 h-40 sm:w-64 sm:h-48 object-cover rounded-lg shrink-0"
+                loading={r < 3 ? 'eager' : 'lazy'}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      {/* Darken the photos, most of all behind the text */}
+      <div className="absolute inset-0 bg-slate-950/60" />
+      <div
+        className="absolute inset-0"
+        style={{ background: 'radial-gradient(ellipse at center, rgba(2,6,23,0.85) 0%, rgba(2,6,23,0.4) 60%, transparent 100%)' }}
+      />
+    </div>
+  );
+}
 
 // ── Hero Section ──────────────────────────────────────────────────────────────
 function Hero() {
   return (
     <section
       aria-label="Hero"
-      className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden"
-      style={{
-        background:
-          'linear-gradient(135deg, #0d1117 0%, #1e293b 50%, #0f172a 100%)',
-      }}
+      className="relative h-[85vh] min-h-[560px] flex items-center justify-center overflow-hidden bg-slate-950"
     >
-      {/* Subtle grid overlay */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(59,130,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.3) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* Ambient glow */}
-      <div
-        aria-hidden="true"
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-3xl"
-        style={{ background: 'radial-gradient(circle, #3b82f6, transparent 70%)' }}
-      />
+      <PhotoMosaic />
 
       {/* Content */}
       <div className="relative z-10 text-center px-6">
@@ -50,135 +86,138 @@ function Hero() {
         </h1>
 
         {/* Description */}
-        <p className="max-w-xl mx-auto text-slate-300 text-lg sm:text-xl leading-relaxed mb-10">
+        <p className="max-w-xl mx-auto text-slate-200 text-lg sm:text-xl leading-relaxed mb-10">
           Mechanical Engineering · Computer Science
         </p>
-        <p className="max-w-lg mx-auto text-slate-400 text-base leading-relaxed mb-12">
+        <p className="max-w-lg mx-auto text-slate-300 text-base leading-relaxed mb-12">
           I like to build things!!!
         </p>
 
         {/* CTA */}
         <div className="flex flex-wrap gap-4 justify-center">
           <a
-            href="#explore"
+            href="#work"
             className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
           >
             Explore Work
           </a>
           <Link
             to="/about"
-            className="px-7 py-3 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/20 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="px-7 py-3 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/20 backdrop-blur-sm transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             About Me
           </Link>
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* Scroll indicator */}
-      <div
-        aria-hidden="true"
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500"
-      >
-        <span className="text-xs uppercase tracking-widest">Scroll</span>
-        <svg
-          className="w-4 h-4 animate-bounce"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
+// ── Project grid ──────────────────────────────────────────────────────────────
+const FILTERS: { value: Category | 'all'; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'me', label: 'Mechanical' },
+  { value: 'cs', label: 'Computer Science' },
+];
+
+function ProjectGrid() {
+  const [params, setParams] = useSearchParams();
+  const param = params.get('category');
+  const filter: Category | 'all' = param === 'cs' || param === 'me' ? param : 'all';
+  const shown = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
+
+  const select = (value: Category | 'all') => setParams(value === 'all' ? {} : { category: value }, { replace: true });
+
+  return (
+    <section id="work" aria-labelledby="work-heading" className="scroll-mt-16 max-w-6xl mx-auto px-6 py-16">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+        <div>
+          <h2 id="work-heading" className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Projects
+          </h2>
+          <p className="text-slate-500 mt-1">Hardware, software, and everything in between.</p>
+        </div>
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects">
+          {FILTERS.map(({ value, label }) => {
+            const count = value === 'all' ? projects.length : projects.filter((p) => p.category === value).length;
+            const active = filter === value;
+            return (
+              <button
+                key={value}
+                onClick={() => select(value)}
+                aria-pressed={active}
+                className={`text-sm font-medium px-3.5 py-1.5 rounded-full border transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  active
+                    ? 'bg-slate-900 text-white border-slate-900'
+                    : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400 hover:text-slate-900'
+                }`}
+              >
+                {label} <span className={active ? 'text-slate-300' : 'text-slate-400'}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {shown.map((project) => (
+          <ProjectCard key={project.id} project={project} />
+        ))}
       </div>
     </section>
   );
 }
 
-// ── Split Panel ───────────────────────────────────────────────────────────────
-interface SplitPanelProps {
-  label: string;
-  sub: string;
-  to: string;
-  gradient: string;
-  patternColor: string;
-}
-
-function SplitPanel({ label, sub, to, gradient, patternColor }: SplitPanelProps) {
-  const navigate = useNavigate();
+// ── Recent updates ────────────────────────────────────────────────────────────
+function RecentUpdates() {
+  const updates = getRecentUpdates(5);
+  if (updates.length === 0) return null;
 
   return (
-    <button
-      onClick={() => navigate(to)}
-      aria-label={`Explore ${label} projects`}
-      className="group relative flex-1 min-h-[420px] sm:min-h-[500px] overflow-hidden focus:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-blue-400"
-    >
-      {/* Background */}
-      <div
-        className="absolute inset-0 transition-transform duration-500 ease-out group-hover:scale-105"
-        style={{ background: gradient }}
-        aria-hidden="true"
-      />
-
-      {/* Grid pattern */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500"
-        style={{
-          backgroundImage: `linear-gradient(${patternColor} 1px, transparent 1px), linear-gradient(90deg, ${patternColor} 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
-      />
-
-      {/* Vignette */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.5) 100%)' }}
-      />
-
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/60 mb-3 group-hover:text-white/80 transition-colors duration-300">
-          {sub}
-        </p>
-        <h2 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-5">
-          {label}
+    <section aria-labelledby="updates-heading" className="border-t border-slate-200 bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <h2 id="updates-heading" className="text-2xl font-extrabold text-slate-900 tracking-tight mb-6">
+          Recent updates
         </h2>
-        <div className="flex items-center gap-2 text-white/70 group-hover:text-white group-hover:gap-4 transition-all duration-300">
-          <span className="text-sm font-medium">View Projects</span>
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
+        <ul className="divide-y divide-slate-200 border-y border-slate-200">
+          {updates.map(({ project, update }) => {
+            const thumb = update.media && (mediaKind(mediaSrc(update.media)) === 'image' ? mediaSrc(update.media) : mediaPoster(update.media));
+            return (
+              <li key={`${project.id}-${update.date}-${update.title}`}>
+                <Link
+                  to={`/projects/${project.category}/${project.slug}`}
+                  className="group flex items-center gap-4 py-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded"
+                >
+                  {thumb ? (
+                    <img src={thumb} alt="" loading="lazy" className="w-16 h-16 rounded-lg object-cover shrink-0 bg-slate-100" />
+                  ) : (
+                    <span className="w-16 h-16 rounded-lg bg-slate-100 shrink-0" aria-hidden="true" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                      {formatUpdateDate(update.date)} · {project.title}
+                    </p>
+                    <p className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors duration-150">
+                      {update.title}
+                    </p>
+                    <p className="text-sm text-slate-600 line-clamp-1">{update.text}</p>
+                  </div>
+                  <svg
+                    className="w-4 h-4 text-slate-400 group-hover:text-blue-500 shrink-0 transition-colors duration-150"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
-    </button>
-  );
-}
-
-// ── Split Panels Section ──────────────────────────────────────────────────────
-function SplitPanels() {
-  return (
-    <section id="explore" aria-label="Explore disciplines" className="flex flex-col sm:flex-row">
-      <SplitPanel
-        label="Computer Science"
-        sub="Embedded · Firmware · IoT"
-        to="/projects/cs"
-        gradient="linear-gradient(135deg, #1e3a5f 0%, #1e40af 50%, #0f2a5c 100%)"
-        patternColor="rgba(96, 165, 250, 0.6)"
-      />
-      <SplitPanel
-        label="Mechanical Engineering"
-        sub="CAD · FEA · Manufacturing"
-        to="/projects/me"
-        gradient="linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%)"
-        patternColor="rgba(52, 211, 153, 0.6)"
-      />
     </section>
   );
 }
@@ -186,9 +225,10 @@ function SplitPanels() {
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function Home() {
   return (
-    <main>
+    <main className="bg-slate-50">
       <Hero />
-      <SplitPanels />
+      <ProjectGrid />
+      <RecentUpdates />
     </main>
   );
 }

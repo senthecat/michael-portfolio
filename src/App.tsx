@@ -1,20 +1,32 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useParams } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import About from './pages/About';
-import ProjectsOverview from './pages/ProjectsOverview';
 import ProjectDetail from './pages/ProjectDetail';
 
 // ── Scroll to top on route change ─────────────────────────────────────────────
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
+// A filtered link like /?category=me (e.g. from /projects/me) lands on the project grid instead.
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const grid = new URLSearchParams(search).has('category') && document.getElementById('work');
+    // 'instant' overrides the site-wide smooth scrolling, which gets cut off mid-navigation.
+    if (grid) grid.scrollIntoView({ behavior: 'instant' });
+    else window.scrollTo({ top: 0, behavior: 'instant' });
+    // Only on page changes; switching filters on the home page shouldn't jump the scroll.
   }, [pathname]);
   return null;
+}
+
+// ── Category pages ────────────────────────────────────────────────────────────
+// /projects/cs and /projects/me now open the home page's project grid, pre-filtered.
+function CategoryRedirect() {
+  const { category } = useParams<{ category: string }>();
+  const valid = category === 'cs' || category === 'me';
+  return <Navigate to={valid ? `/?category=${category}` : '/'} replace />;
 }
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
@@ -43,7 +55,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/projects/:category" element={<ProjectsOverview />} />
+        <Route path="/projects/:category" element={<CategoryRedirect />} />
         <Route path="/projects/:category/:slug" element={<ProjectDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

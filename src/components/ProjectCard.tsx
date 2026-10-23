@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { mediaPoster, mediaSrc } from '../data/projects';
+import { formatUpdateDate, mediaPoster, mediaSrc } from '../data/projects';
 import type { Project } from '../data/projects';
 import ProjectMedia from './ProjectMedia';
 
@@ -59,7 +59,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </p>
         {project.updates && project.updates.length > 0 && (
           <p className="text-xs text-slate-400 mt-2">
-            Latest update: <span className="text-slate-600">{project.updates[0].title}</span> · {project.updates[0].date}
+            Latest update: <span className="text-slate-600">{project.updates[0].title}</span> · {formatUpdateDate(project.updates[0].date)}
           </p>
         )}
 

@@ -15,7 +15,7 @@ export interface ProjectModel {
 }
 
 export interface ProjectUpdate {
-  date: string; // e.g. '2026-10-23' or 'Oct 2026'
+  date: string; // 'YYYY-MM-DD', or 'YYYY-MM' when the day isn't known; shown as 'Oct 15, 2026' / 'May 2026'
   title: string;
   text: string;
   media?: MediaItem;
@@ -66,65 +66,7 @@ const vid = (path: string, caption?: string): MediaItem => ({
 // Project data
 // ---------------------------------------------------------------------------
 export const projects: Project[] = [
-  // ── Computer Science ──────────────────────────────────────────────────────
-  {
-    id: 'steno-keyboard',
-    category: 'cs',
-    slug: 'stenography-keyboard',
-    title: 'Stenography Keyboard',
-    shortDescription:
-      'Custom USB HID keyboard with nRF52840 firmware, hand-routed KiCad PCB, and 3D-printed enclosure.',
-    longDescription:
-      'A fully custom stenography keyboard designed from the ground up — from schematic capture and PCB fabrication to firmware development and physical assembly. The goal was to achieve professional-grade HID latency in a compact, self-contained device.',
-    bullets: [
-      'Designed a multi-layer PCB in KiCad: schematic capture, component placement, hand-routed traces, and DRC/ERC sign-off before sending to fab.',
-      'Sourced and soldered all SMD and through-hole components; validated signal integrity with an oscilloscope and logic analyzer.',
-      'Wrote nRF52840 firmware in C: event-driven key-matrix scanning with diode isolation to support full n-key rollover without ghosting.',
-      'Optimized USB HID report loop to achieve ~3 ms end-to-end latency vs. ~20 ms on a serial-over-USB baseline, benchmarked over 200+ keystroke samples.',
-      'Designed and 3D-printed a two-piece enclosure prototype with snap-fit tolerancing; iterated twice based on fitment and cable routing.',
-      'Implemented non-blocking firmware architecture (no busy-waits) to keep the main loop deterministic and real-time safe.',
-    ],
-    tech: ['nRF52840', 'C', 'KiCad', 'USB HID', 'SolidWorks', '3D Printing', 'Oscilloscope', 'Logic Analyzer'],
-    date: '2025-2026',
-    media: [
-      img('cs/steno_pcb.png'),
-      img('cs/steno_assembled.png'),
-      img('cs/steno_enclosure.png'),
-    ],
-    links: {
-      github: 'https://github.com/michaeltranfield',
-    },
-  },
-  {
-    id: 'esp32-messaging',
-    category: 'cs',
-    slug: 'esp32-remote-messaging',
-    title: 'ESP32 Remote Messaging System',
-    shortDescription:
-      'WiFi-connected ESP32 device that receives server-routed messages and displays them on a 16×2 LCD with scrolling text.',
-    longDescription:
-      'An end-to-end IoT messaging pipeline: a web front-end posts text to an AWS-hosted server, which filters and routes messages to registered ESP32 devices. The device persists messages in EEPROM and lets the user cycle through them on a character LCD.',
-    bullets: [
-      'Provisioned an AWS EC2 instance and wrote a lightweight Node.js message-broker that receives POST requests from the web UI and routes them to registered device IDs.',
-      'Built a React-based web textbox UI for composing and sending messages; deployed to S3 with CloudFront distribution.',
-      'Implemented WiFi provisioning and HTTP polling on the ESP32 using the Arduino framework; device reconnects automatically on drop.',
-      'Stored up to 16 messages in EEPROM with a circular-buffer layout to survive power cycles without an RTC or SD card.',
-      'Wrote a smooth scrolling-text renderer for the 16×2 character LCD, driven by a non-blocking timer ISR.',
-      'Added a hardware debounced push-button that cycles the display to the next queued message.',
-    ],
-    tech: ['ESP32', 'C++', 'Arduino', 'AWS EC2', 'Node.js', 'React', 'EEPROM', 'LCD', 'WiFi', 'HTTP'],
-    date: '2023',
-    media: [
-      img('cs/esp32_architecture.png'),
-      img('cs/esp32_hardware.png'),
-      img('cs/esp32_webui.png'),
-    ],
-    links: {
-      github: 'https://github.com/michaeltranfield',
-    },
-  },
-
-  // ── Mechanical Engineering ────────────────────────────────────────────────
+  // Shown in this order on the home page: projects with real photos and videos first.
   {
     id: 'corvette-engine-swap',
     category: 'me',
@@ -169,37 +111,37 @@ export const projects: Project[] = [
     links: {},
     updates: [
       {
-        date: 'Oct 15, 2026',
+        date: '2026-10-15',
         title: 'Engine going in',
         text: 'Mated the transmission to the engine and started lowering them into the car with the hoist.',
         media: photo('me/corvette/engine_going_in_car.jpg', 'Lowering the engine into the car'),
       },
       {
-        date: 'Oct 13, 2026',
+        date: '2026-10-13',
         title: 'Prepping the transmission',
         text: 'Painted the bellhousing before mating it to the engine.',
         media: photo('me/corvette/spray_paint_bellhousing.jpg', 'Painting the bellhousing'),
       },
       {
-        date: 'Sep 21, 2026',
+        date: '2026-09-21',
         title: 'Engine assembled',
         text: 'The new engine is assembled and sitting next to the car, ready for install.',
         media: photo('me/corvette/engine_next_to_car.jpg', 'Assembled engine next to the car'),
       },
       {
-        date: 'May 2026',
+        date: '2026-05',
         title: 'Engine on the stand',
         text: 'The rebuilt engine came together on the stand. Seized hardware slowed things down along the way.',
         media: vid('me/corvette/img_4466.mp4', 'The new engine on the stand'),
       },
       {
-        date: 'Mar 21, 2026',
+        date: '2026-03-21',
         title: 'Teardown and diagnosis',
         text: 'Pulled and tore down the original engine. Found a spun bearing caused by oil loss from a leaking rear main seal. The block was beyond repair, so I bought a new one to build from scratch.',
         media: photo('me/corvette/spun_bearings.jpg', 'Failed bearings from the original engine'),
       },
       {
-        date: 'Feb 24, 2026',
+        date: '2026-02-24',
         title: 'Brought it home',
         text: 'Bought a 1984 Corvette rolling shell with a knocking engine.',
         media: photo('me/corvette/rear_in_garage.jpg', 'The car as bought'),
@@ -234,6 +176,79 @@ export const projects: Project[] = [
       vid('me/autonomous-robot/challenges.mp4', 'Indoor test run'),
     ],
     links: {},
+  },
+  {
+    id: 'steno-keyboard',
+    category: 'cs',
+    slug: 'stenography-keyboard',
+    title: 'Stenography Keyboard',
+    shortDescription:
+      'Custom USB HID keyboard with nRF52840 firmware, hand-routed KiCad PCB, and 3D-printed enclosure.',
+    longDescription:
+      'A fully custom stenography keyboard designed from the ground up — from schematic capture and PCB fabrication to firmware development and physical assembly. The goal was to achieve professional-grade HID latency in a compact, self-contained device.',
+    bullets: [
+      'Designed a multi-layer PCB in KiCad: schematic capture, component placement, hand-routed traces, and DRC/ERC sign-off before sending to fab.',
+      'Sourced and soldered all SMD and through-hole components; validated signal integrity with an oscilloscope and logic analyzer.',
+      'Wrote nRF52840 firmware in C: event-driven key-matrix scanning with diode isolation to support full n-key rollover without ghosting.',
+      'Optimized USB HID report loop to achieve ~3 ms end-to-end latency vs. ~20 ms on a serial-over-USB baseline, benchmarked over 200+ keystroke samples.',
+      'Designed and 3D-printed a two-piece enclosure prototype with snap-fit tolerancing; iterated twice based on fitment and cable routing.',
+      'Implemented non-blocking firmware architecture (no busy-waits) to keep the main loop deterministic and real-time safe.',
+    ],
+    tech: ['nRF52840', 'C', 'KiCad', 'USB HID', 'SolidWorks', '3D Printing', 'Oscilloscope', 'Logic Analyzer'],
+    date: '2025-2026',
+    media: [
+      photo('cs/steno/fully_assembled.jpg', 'Fully assembled in its 3D-printed case'),
+      photo('cs/steno/keycaps_on.jpg', 'Keycaps on, with the microcontroller wired up'),
+      photo('cs/steno/done_soldering.jpg', 'All switches soldered to the PCB'),
+      photo('cs/steno/steno_pcb.png', '3D render of the PCB from KiCad'),
+      vid('cs/steno/printing_case.mp4', 'Printing the case'),
+    ],
+    models: [{ src: img('cs/steno/steno_pcb.glb'), label: 'PCB' }],
+    links: {
+      github: 'https://github.com/michaeltranfield',
+    },
+    updates: [
+      {
+        date: '2026-03-10',
+        title: 'Fully assembled',
+        text: 'Printed the case and assembled the finished keyboard.',
+        media: photo('cs/steno/fully_assembled.jpg', 'Fully assembled in its 3D-printed case'),
+      },
+      {
+        date: '2026-02-26',
+        title: 'Keycaps on',
+        text: 'Switches soldered, keycaps installed, and the microcontroller wired up.',
+        media: photo('cs/steno/keycaps_on.jpg', 'Keycaps on, with the microcontroller wired up'),
+      },
+    ],
+  },
+  {
+    id: 'esp32-messaging',
+    category: 'cs',
+    slug: 'esp32-remote-messaging',
+    title: 'ESP32 Remote Messaging System',
+    shortDescription:
+      'WiFi-connected ESP32 device that receives server-routed messages and displays them on a 16×2 LCD with scrolling text.',
+    longDescription:
+      'An end-to-end IoT messaging pipeline: a web front-end posts text to an AWS-hosted server, which filters and routes messages to registered ESP32 devices. The device persists messages in EEPROM and lets the user cycle through them on a character LCD.',
+    bullets: [
+      'Provisioned an AWS EC2 instance and wrote a lightweight Node.js message-broker that receives POST requests from the web UI and routes them to registered device IDs.',
+      'Built a React-based web textbox UI for composing and sending messages; deployed to S3 with CloudFront distribution.',
+      'Implemented WiFi provisioning and HTTP polling on the ESP32 using the Arduino framework; device reconnects automatically on drop.',
+      'Stored up to 16 messages in EEPROM with a circular-buffer layout to survive power cycles without an RTC or SD card.',
+      'Wrote a smooth scrolling-text renderer for the 16×2 character LCD, driven by a non-blocking timer ISR.',
+      'Added a hardware debounced push-button that cycles the display to the next queued message.',
+    ],
+    tech: ['ESP32', 'C++', 'Arduino', 'AWS EC2', 'Node.js', 'React', 'EEPROM', 'LCD', 'WiFi', 'HTTP'],
+    date: '2023',
+    media: [
+      img('cs/esp32_architecture.png'),
+      img('cs/esp32_hardware.png'),
+      img('cs/esp32_webui.png'),
+    ],
+    links: {
+      github: 'https://github.com/michaeltranfield',
+    },
   },
   {
     id: 'ninja-h2r',
@@ -271,3 +286,40 @@ export const getProjectsByCategory = (cat: Category): Project[] =>
 
 export const getProjectBySlug = (cat: Category, slug: string): Project | undefined =>
   projects.find((p) => p.category === cat && p.slug === slug);
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// '2026-10-15' → 'Oct 15, 2026'; '2026-05' → 'May 2026'. Anything else is shown as written.
+export const formatUpdateDate = (date: string): string => {
+  const m = date.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+  if (!m) return date;
+  const month = MONTHS[Number(m[2]) - 1];
+  return m[3] ? `${month} ${Number(m[3])}, ${m[1]}` : `${month} ${m[1]}`;
+};
+
+// Latest updates across all projects, newest first.
+export const getRecentUpdates = (limit: number): { project: Project; update: ProjectUpdate }[] =>
+  projects
+    .flatMap((project) => (project.updates ?? []).map((update) => ({ project, update })))
+    .sort((a, b) => b.update.date.localeCompare(a.update.date))
+    .slice(0, limit);
+
+// Small pre-cropped tiles for the home page mosaic, generated from the project photos.
+export const heroTiles: string[] = [
+  'me_corvette_engine_transmission_stand',
+  'me_corvette_engine_next_to_car',
+  'me_corvette_rotating_assembly',
+  'me_corvette_topside_bare',
+  'me_corvette_engine_going_in_car',
+  'me_corvette_rear_in_garage',
+  'me_corvette_spun_crank',
+  'me_corvette_img_4466',
+  'me_autonomous-robot_wiring',
+  'me_autonomous-robot_moving',
+  'me_autonomous-robot_challenges',
+  'me_autonomous-robot_img_3513',
+  'me_autonomous-robot_img_3522',
+  'me_autonomous-robot_fire_slow',
+  'cs_steno_pcb',
+  'cs_steno_fully_assembled',
+].map((name) => img(`hero/${name}.jpg`));
