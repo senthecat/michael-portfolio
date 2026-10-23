@@ -77,7 +77,8 @@ export const projects: Project[] = [
     longDescription:
       "I bought a 1984 Corvette rolling shell with a knocking engine and have been working on it since early 2026. After pulling the engine and tearing it down, I found a spun bearing caused by oil loss from a leaking rear main seal. The original block was beyond repair, so I bought a new block and built a Gen 1 roller small-block Chevy 350 from scratch. In place of the car's original Cross-Fire Injection, the new engine runs Holley Sniper 2 EFI, with aftermarket AFR cylinder heads and a Summit Racing SUM-K8802 cam. The project is now in the install phase, with the new engine and transmission going into the car.",
     bullets: [
-      'Pulled the original engine and tore it down to find the source of the knock.',
+      'Researched before wrenching: worked through the factory service manual, C4 owner forums, and rebuild guides to learn small-block layout, torque sequences, and the order of operations for a full rebuild.',
+      'Pulled the original engine (disconnected fuel, coolant, electrical, and exhaust, unbolted the transmission, and lifted it out with a hoist), then tore it down to find the source of the knock.',
       'Traced the failure to a spun bearing caused by oil loss from a leaking rear main seal; the damage left the original block beyond repair.',
       'Sourced a new block and built a Gen 1 roller SBC 350 from the bare block up, including the rotating assembly.',
       'Replaced the original Cross-Fire Injection with Holley Sniper 2 EFI, and upgraded to aftermarket AFR heads and a Summit Racing SUM-K8802 cam.',
@@ -205,7 +206,7 @@ export const projects: Project[] = [
     ],
     models: [{ src: img('cs/steno/steno_pcb.glb'), label: 'PCB' }],
     links: {
-      github: 'https://github.com/michaeltranfield',
+      github: 'https://github.com/senthecat',
     },
     updates: [
       {
@@ -247,7 +248,7 @@ export const projects: Project[] = [
       img('cs/esp32_webui.png'),
     ],
     links: {
-      github: 'https://github.com/michaeltranfield',
+      github: 'https://github.com/senthecat',
     },
   },
   {

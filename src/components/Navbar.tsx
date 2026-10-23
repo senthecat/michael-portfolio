@@ -245,7 +245,7 @@ function MobileMenu({ onClose }: { onClose: () => void }) {
         <ExternalIconLink href="https://www.linkedin.com/in/michael-tranfield-28bab2294/" label="LinkedIn">
           <SiLinkedin size={20} />
         </ExternalIconLink>
-        <ExternalIconLink href="https://github.com/tramic9862" label="GitHub">
+        <ExternalIconLink href="https://github.com/senthecat" label="GitHub">
           <SiGithub size={20} />
         </ExternalIconLink>
       </div>
@@ -305,7 +305,7 @@ export default function Navbar() {
               <SiLinkedin size={18} />
             </ExternalIconLink>
             <span className="mx-1" aria-hidden="true" />
-            <ExternalIconLink href="https://github.com/tramic9862" label="GitHub profile">
+            <ExternalIconLink href="https://github.com/senthecat" label="GitHub profile">
               <SiGithub size={18} />
             </ExternalIconLink>
           </div>
@@ -331,7 +331,7 @@ export default function Navbar() {
             <ExternalIconLink href="https://www.linkedin.com/in/michael-tranfield-28bab2294/" label="LinkedIn profile">
               <SiLinkedin size={18} />
             </ExternalIconLink>
-            <ExternalIconLink href="https://github.com/tramic9862" label="GitHub profile">
+            <ExternalIconLink href="https://github.com/senthecat" label="GitHub profile">
               <SiGithub size={18} />
             </ExternalIconLink>
             <button
