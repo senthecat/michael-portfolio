@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
+import { mediaPoster, mediaSrc } from '../data/projects';
 import type { Project } from '../data/projects';
+import ProjectMedia from './ProjectMedia';
 
 interface ProjectCardProps {
   project: Project;
@@ -16,11 +18,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     >
       {/* Image */}
       <div className="relative overflow-hidden aspect-video bg-slate-100">
-        <img
-          src={project.images[0]}
+        <ProjectMedia
+          src={mediaSrc(project.media[0])}
+          poster={mediaPoster(project.media[0])}
           alt={`${project.title} preview`}
+          mode="thumb"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          loading="lazy"
         />
         {/* Category badge */}
         <span
@@ -32,11 +35,18 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         >
           {project.category === 'cs' ? 'Comp Sci' : 'Mechanical'}
         </span>
-        {project.date && (
-          <span className="absolute top-3 right-3 text-xs font-medium bg-black/50 text-white px-2 py-0.5 rounded">
-            {project.date}
-          </span>
-        )}
+        <div className="absolute top-3 right-3 flex gap-1.5">
+          {project.status === 'in-progress' && (
+            <span className="text-xs font-medium bg-amber-500/90 text-white px-2 py-0.5 rounded">
+              In progress
+            </span>
+          )}
+          {project.date && (
+            <span className="text-xs font-medium bg-black/50 text-white px-2 py-0.5 rounded">
+              {project.date}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -47,6 +57,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <p className="text-sm text-slate-500 leading-relaxed line-clamp-2">
           {project.shortDescription}
         </p>
+        {project.updates && project.updates.length > 0 && (
+          <p className="text-xs text-slate-400 mt-2">
+            Latest update: <span className="text-slate-600">{project.updates[0].title}</span> · {project.updates[0].date}
+          </p>
+        )}
 
         {/* Tech tags — first 4 only */}
         <div className="flex flex-wrap gap-1.5 mt-4">

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 // ── Hero Section ──────────────────────────────────────────────────────────────
 function Hero() {
@@ -54,9 +54,7 @@ function Hero() {
           Mechanical Engineering · Computer Science
         </p>
         <p className="max-w-lg mx-auto text-slate-400 text-base leading-relaxed mb-12">
-          I build things at the boundary of hardware and software — from custom USB HID
-          firmware on nRF52840 to parametric SolidWorks assemblies to AWS-connected IoT
-          devices.
+          I like to build things!!!
         </p>
 
         {/* CTA */}
@@ -67,12 +65,12 @@ function Hero() {
           >
             Explore Work
           </a>
-          <a
-            href="/about"
+          <Link
+            to="/about"
             className="px-7 py-3 bg-white/10 hover:bg-white/15 text-white font-semibold rounded-lg border border-white/20 transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             About Me
-          </a>
+          </Link>
         </div>
       </div>
 

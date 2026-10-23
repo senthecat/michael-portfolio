@@ -95,6 +95,8 @@ const experience: ExperienceItem[] = [
 const keyProjects = [
   { label: 'Stenography Keyboard', to: '/projects/cs/stenography-keyboard', badge: 'CS' },
   { label: 'ESP32 Remote Messaging System', to: '/projects/cs/esp32-remote-messaging', badge: 'CS' },
+  { label: '1984 Corvette Engine Rebuild & Swap', to: '/projects/me/corvette-engine-swap', badge: 'ME' },
+  { label: 'Autonomous Pathing Robot', to: '/projects/me/autonomous-pathing-robot', badge: 'ME' },
   { label: 'Kawasaki Ninja H2R CAD Model', to: '/projects/me/kawasaki-ninja-h2r-cad', badge: 'ME' },
 ];
 
@@ -112,10 +114,7 @@ export default function About() {
             Michael Tranfield
           </h1>
           <p className="text-slate-300 text-lg leading-relaxed max-w-2xl">
-            I'm an engineer who works at the intersection of embedded systems, mechanical
-            design, and software. I'm drawn to projects where hardware and software must
-            co-exist seamlessly — where firmware latency, PCB layout, and enclosure geometry
-            all matter at the same time.
+            I'm an engineer that enjoys understanding the innerworkings of machinery, computers, and technology.
           </p>
         </div>
       </div>

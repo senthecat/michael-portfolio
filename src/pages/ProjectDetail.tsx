@@ -1,44 +1,128 @@
 import { useParams, Navigate, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { SiGithub } from 'react-icons/si';
-import { getProjectBySlug } from '../data/projects';
-import type { Category } from '../data/projects';
+import { getProjectBySlug, mediaCaption, mediaPoster, mediaSrc } from '../data/projects';
+import type { Category, MediaItem, ProjectModel, ProjectUpdate } from '../data/projects';
+import ProjectMedia, { mediaKind } from '../components/ProjectMedia';
+
+// three.js is large, so it's only downloaded on pages that actually have a 3D model.
+const ModelViewer = lazy(() => import('../components/ModelViewer'));
+
+// ── 3D model section ──────────────────────────────────────────────────────────
+function ModelSection({ models, accentText, accentTab }: { models: ProjectModel[]; accentText: string; accentTab: string }) {
+  const [active, setActive] = useState(0);
+  const model = models[active];
+
+  return (
+    <section aria-labelledby="model-heading" className="mb-12">
+      <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+        <h2 id="model-heading" className={`text-base font-bold uppercase tracking-widest ${accentText}`}>
+          Interactive 3D Model
+        </h2>
+        {models.length > 1 && (
+          <div className="flex gap-1 bg-slate-200/70 p-1 rounded-lg" role="tablist" aria-label="3D models">
+            {models.map((m, i) => (
+              <button
+                key={m.src}
+                role="tab"
+                aria-selected={i === active}
+                onClick={() => setActive(i)}
+                className={`text-sm font-medium px-3 py-1 rounded-md transition-colors duration-150 ${
+                  i === active ? `bg-white shadow-sm ${accentTab}` : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="rounded-xl overflow-hidden border border-slate-200 aspect-[4/3] sm:aspect-[16/9]">
+        <Suspense fallback={<div className="w-full h-full bg-slate-100" />}>
+          <ModelViewer key={model.src} src={model.src} label={model.label} color={model.color} />
+        </Suspense>
+      </div>
+    </section>
+  );
+}
 
 // ── Image gallery ─────────────────────────────────────────────────────────────
-function Gallery({ images, title }: { images: string[]; title: string }) {
+function Gallery({ media, title }: { media: MediaItem[]; title: string }) {
   const [active, setActive] = useState(0);
+  const caption = mediaCaption(media[active]);
 
   return (
     <div className="space-y-3">
-      {/* Main image */}
-      <div className="rounded-xl overflow-hidden aspect-video bg-slate-100 border border-slate-200">
-        <img
-          src={images[active]}
-          alt={`${title} — image ${active + 1}`}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {/* Main image — square and letterboxed so portrait phone photos aren't cropped */}
+      <figure>
+        <div className="rounded-xl overflow-hidden aspect-square bg-slate-900 border border-slate-200">
+          <ProjectMedia
+            key={active}
+            src={mediaSrc(media[active])}
+            poster={mediaPoster(media[active])}
+            alt={caption ?? `${title} — ${active + 1} of ${media.length}`}
+            className="w-full h-full object-contain"
+          />
+        </div>
+        <figcaption className="flex justify-between gap-3 text-sm text-slate-600 mt-2 min-h-[1.25rem]">
+          <span>{caption}</span>
+          {media.length > 1 && (
+            <span className="shrink-0 text-slate-400 tabular-nums">
+              {active + 1} / {media.length}
+            </span>
+          )}
+        </figcaption>
+      </figure>
 
       {/* Thumbnails (only if multiple) */}
-      {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1" role="list" aria-label="Image thumbnails">
-          {images.map((src, i) => (
+      {media.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-1" role="list" aria-label="Media thumbnails">
+          {media.map((m, i) => (
             <button
               key={i}
               onClick={() => setActive(i)}
               role="listitem"
-              aria-label={`View image ${i + 1}`}
+              aria-label={mediaCaption(m) ?? `View ${mediaKind(mediaSrc(m)) === 'image' ? 'photo' : 'video'} ${i + 1}`}
               aria-pressed={i === active}
               className={`shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                 i === active ? 'border-blue-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-80'
               }`}
             >
-              <img src={src} alt="" className="w-full h-full object-cover" />
+              <ProjectMedia src={mediaSrc(m)} poster={mediaPoster(m)} alt="" mode="thumb" className="w-full h-full object-cover" />
             </button>
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+// ── Updates timeline ──────────────────────────────────────────────────────────
+function UpdatesTimeline({ updates, dotClass }: { updates: ProjectUpdate[]; dotClass: string }) {
+  return (
+    <ol className="relative border-l-2 border-slate-200 ml-2 space-y-8">
+      {updates.map((u, i) => (
+        <li key={i} className="pl-6 relative">
+          <span
+            className={`absolute -left-[7px] top-1.5 w-3 h-3 rounded-full ring-4 ring-slate-50 ${dotClass}`}
+            aria-hidden="true"
+          />
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{u.date}</p>
+          <h3 className="font-semibold text-slate-900 mt-1">{u.title}</h3>
+          <p className="text-slate-700 leading-relaxed mt-1">{u.text}</p>
+          {u.media && (
+            <div className="mt-3 rounded-lg overflow-hidden border border-slate-200 bg-slate-900 aspect-[4/3] max-w-sm">
+              <ProjectMedia
+                src={mediaSrc(u.media)}
+                poster={mediaPoster(u.media)}
+                alt={mediaCaption(u.media) ?? u.title}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+        </li>
+      ))}
+    </ol>
   );
 }
 
@@ -102,6 +186,11 @@ export default function ProjectDetail() {
             >
               {isCS ? 'Computer Science' : 'Mechanical Engineering'}
             </span>
+            {project.status === 'in-progress' && (
+              <span className="text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full border bg-amber-100 text-amber-700 border-amber-200">
+                In Progress
+              </span>
+            )}
             {project.date && (
               <span className="text-xs text-slate-500 font-medium">{project.date}</span>
             )}
@@ -113,6 +202,14 @@ export default function ProjectDetail() {
             {project.shortDescription}
           </p>
         </div>
+
+        {project.models && project.models.length > 0 && (
+          <ModelSection
+            models={project.models}
+            accentText={accentText}
+            accentTab={isCS ? 'text-blue-700' : 'text-emerald-700'}
+          />
+        )}
 
         {/* Two-column layout */}
         <div className="grid lg:grid-cols-5 gap-10">
@@ -130,6 +227,19 @@ export default function ProjectDetail() {
               </h2>
               <p className="text-slate-700 leading-relaxed">{project.longDescription}</p>
             </section>
+
+            {/* Updates */}
+            {project.updates && project.updates.length > 0 && (
+              <section aria-labelledby="updates-heading">
+                <h2
+                  id="updates-heading"
+                  className={`text-base font-bold uppercase tracking-widest mb-6 ${accentText}`}
+                >
+                  Project Updates
+                </h2>
+                <UpdatesTimeline updates={project.updates} dotClass={isCS ? 'bg-blue-500' : 'bg-emerald-500'} />
+              </section>
+            )}
 
             {/* What I did */}
             <section aria-labelledby="bullets-heading">
@@ -221,7 +331,7 @@ export default function ProjectDetail() {
           {/* Right: images (2/5) */}
           <div className="lg:col-span-2">
             <div className="sticky top-20">
-              <Gallery images={project.images} title={project.title} />
+              <Gallery media={project.media} title={project.title} />
             </div>
           </div>
 

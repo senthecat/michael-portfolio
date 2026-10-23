@@ -6,6 +6,28 @@ export interface ProjectLink {
   video?: string;
 }
 
+export type ProjectStatus = 'in-progress' | 'complete';
+
+export interface ProjectModel {
+  src: string;
+  label: string; // tab name when a project has several models, e.g. 'PCB' or 'Enclosure'
+  color?: string; // STL files carry no color; defaults to a neutral gray
+}
+
+export interface ProjectUpdate {
+  date: string; // e.g. '2026-10-23' or 'Oct 2026'
+  title: string;
+  text: string;
+  media?: MediaItem;
+}
+
+// A photo, video or YouTube URL, optionally with a caption (and a poster frame for videos).
+export type MediaItem = string | { src: string; caption?: string; poster?: string };
+
+export const mediaSrc = (m: MediaItem) => (typeof m === 'string' ? m : m.src);
+export const mediaCaption = (m: MediaItem) => (typeof m === 'string' ? undefined : m.caption);
+export const mediaPoster = (m: MediaItem) => (typeof m === 'string' ? undefined : m.poster);
+
 export interface Project {
   id: string;
   category: Category;
@@ -16,16 +38,29 @@ export interface Project {
   bullets: string[];
   tech: string[];
   date?: string;
-  images: string[];
+  status?: ProjectStatus;
+  // Photos (.jpg/.png/.webp), videos (.mp4/.webm) or YouTube URLs. The first item is the card thumbnail.
+  media: MediaItem[];
+  // Interactive 3D models (.glb, .gltf or .stl), shown in a 360° viewer on the project page.
+  models?: ProjectModel[];
   links?: ProjectLink;
+  // Newest first. Shown as a timeline on the project page.
+  updates?: ProjectUpdate[];
 }
 
 // ---------------------------------------------------------------------------
-// Placeholder image helper — swap these out with real assets when ready.
-// Using placehold.co (a standard developer placeholder service).
+// Asset image helper — resolves paths relative to src/assets/.
+// Change ASSETS_BASE to point at a different root if needed.
 // ---------------------------------------------------------------------------
-const ph = (w: number, h: number, label: string, bg = '1e293b', fg = 'e2e8f0') =>
-  `https://placehold.co/${w}x${h}/${bg}/${fg}?text=${encodeURIComponent(label)}&font=inter`;
+const ASSETS_BASE = `${import.meta.env.BASE_URL}assets`;
+const img = (path: string) => `${ASSETS_BASE}/${path}`;
+const photo = (path: string, caption?: string): MediaItem => ({ src: img(path), caption });
+// Videos are converted to .mp4 with a matching '<name>_poster.jpg' frame alongside.
+const vid = (path: string, caption?: string): MediaItem => ({
+  src: img(path),
+  caption,
+  poster: img(path.replace(/\.mp4$/, '_poster.jpg')),
+});
 
 // ---------------------------------------------------------------------------
 // Project data
@@ -50,11 +85,11 @@ export const projects: Project[] = [
       'Implemented non-blocking firmware architecture (no busy-waits) to keep the main loop deterministic and real-time safe.',
     ],
     tech: ['nRF52840', 'C', 'KiCad', 'USB HID', 'SolidWorks', '3D Printing', 'Oscilloscope', 'Logic Analyzer'],
-    date: '2024',
-    images: [
-      ph(800, 500, 'PCB Layout — KiCad'),
-      ph(800, 500, 'Assembled Board'),
-      ph(800, 500, '3D Printed Enclosure'),
+    date: '2025-2026',
+    media: [
+      img('cs/steno_pcb.png'),
+      img('cs/steno_assembled.png'),
+      img('cs/steno_enclosure.png'),
     ],
     links: {
       github: 'https://github.com/michaeltranfield',
@@ -79,10 +114,10 @@ export const projects: Project[] = [
     ],
     tech: ['ESP32', 'C++', 'Arduino', 'AWS EC2', 'Node.js', 'React', 'EEPROM', 'LCD', 'WiFi', 'HTTP'],
     date: '2023',
-    images: [
-      ph(800, 500, 'System Architecture'),
-      ph(800, 500, 'ESP32 Hardware Setup'),
-      ph(800, 500, 'Web UI'),
+    media: [
+      img('cs/esp32_architecture.png'),
+      img('cs/esp32_hardware.png'),
+      img('cs/esp32_webui.png'),
     ],
     links: {
       github: 'https://github.com/michaeltranfield',
@@ -90,6 +125,116 @@ export const projects: Project[] = [
   },
 
   // ── Mechanical Engineering ────────────────────────────────────────────────
+  {
+    id: 'corvette-engine-swap',
+    category: 'me',
+    slug: 'corvette-engine-swap',
+    title: '1984 Corvette Engine Rebuild & Swap',
+    shortDescription:
+      'Bought a 1984 Corvette rolling shell with a knocking engine, diagnosed a spun bearing, and built a new Gen 1 roller small-block Chevy 350 with Holley Sniper 2 EFI. Install in progress.',
+    longDescription:
+      "I bought a 1984 Corvette rolling shell with a knocking engine and have been working on it since early 2026. After pulling the engine and tearing it down, I found a spun bearing caused by oil loss from a leaking rear main seal. The original block was beyond repair, so I bought a new block and built a Gen 1 roller small-block Chevy 350 from scratch. In place of the car's original Cross-Fire Injection, the new engine runs Holley Sniper 2 EFI, with aftermarket AFR cylinder heads and a Summit Racing SUM-K8802 cam. The project is now in the install phase, with the new engine and transmission going into the car.",
+    bullets: [
+      'Pulled the original engine and tore it down to find the source of the knock.',
+      'Traced the failure to a spun bearing caused by oil loss from a leaking rear main seal; the damage left the original block beyond repair.',
+      'Sourced a new block and built a Gen 1 roller SBC 350 from the bare block up, including the rotating assembly.',
+      'Replaced the original Cross-Fire Injection with Holley Sniper 2 EFI, and upgraded to aftermarket AFR heads and a Summit Racing SUM-K8802 cam.',
+      'Painted the bellhousing, mated the transmission to the engine, and lowered them into the car together with an engine hoist.',
+      'Worked through problems along the way, including seized hardware.',
+    ],
+    tech: [
+      'SBC 350 (Gen 1 Roller)',
+      'Holley Sniper 2 EFI',
+      'AFR Heads',
+      'Summit SUM-K8802 Cam',
+      'Engine Building',
+      'Failure Diagnosis',
+      'Drivetrain Install',
+    ],
+    date: '2026',
+    status: 'in-progress',
+    media: [
+      photo('me/corvette/engine_transmission_stand.jpg', 'Engine and transmission mated and on the hoist, ready to go in'),
+      photo('me/corvette/rear_in_garage.jpg', 'The car as bought: a rolling shell with a knocking engine'),
+      photo('me/corvette/spun_bearings.jpg', 'Failed bearings from the original engine'),
+      photo('me/corvette/spun_crank.jpg', 'Crankshaft damage from the spun bearing'),
+      photo('me/corvette/topside_bare.jpg', 'New block with pistons installed'),
+      photo('me/corvette/rotating_assembly.jpg', 'Rotating assembly in the new block'),
+      vid('me/corvette/img_4466.mp4', 'The new engine on the stand'),
+      photo('me/corvette/bolt_stuck.jpg', 'A seized bolt, one of the problems along the way'),
+      photo('me/corvette/engine_next_to_car.jpg', 'Assembled engine next to the car'),
+      photo('me/corvette/spray_paint_bellhousing.jpg', 'Painting the bellhousing'),
+      photo('me/corvette/engine_going_in_car.jpg', 'Lowering the engine into the car'),
+    ],
+    links: {},
+    updates: [
+      {
+        date: 'Oct 15, 2026',
+        title: 'Engine going in',
+        text: 'Mated the transmission to the engine and started lowering them into the car with the hoist.',
+        media: photo('me/corvette/engine_going_in_car.jpg', 'Lowering the engine into the car'),
+      },
+      {
+        date: 'Oct 13, 2026',
+        title: 'Prepping the transmission',
+        text: 'Painted the bellhousing before mating it to the engine.',
+        media: photo('me/corvette/spray_paint_bellhousing.jpg', 'Painting the bellhousing'),
+      },
+      {
+        date: 'Sep 21, 2026',
+        title: 'Engine assembled',
+        text: 'The new engine is assembled and sitting next to the car, ready for install.',
+        media: photo('me/corvette/engine_next_to_car.jpg', 'Assembled engine next to the car'),
+      },
+      {
+        date: 'May 2026',
+        title: 'Engine on the stand',
+        text: 'The rebuilt engine came together on the stand. Seized hardware slowed things down along the way.',
+        media: vid('me/corvette/img_4466.mp4', 'The new engine on the stand'),
+      },
+      {
+        date: 'Mar 21, 2026',
+        title: 'Teardown and diagnosis',
+        text: 'Pulled and tore down the original engine. Found a spun bearing caused by oil loss from a leaking rear main seal. The block was beyond repair, so I bought a new one to build from scratch.',
+        media: photo('me/corvette/spun_bearings.jpg', 'Failed bearings from the original engine'),
+      },
+      {
+        date: 'Feb 24, 2026',
+        title: 'Brought it home',
+        text: 'Bought a 1984 Corvette rolling shell with a knocking engine.',
+        media: photo('me/corvette/rear_in_garage.jpg', 'The car as bought'),
+      },
+    ],
+  },
+  {
+    id: 'autonomous-robot',
+    category: 'me',
+    slug: 'autonomous-pathing-robot',
+    title: 'Autonomous Pathing Robot',
+    shortDescription:
+      'Autonomous robot for a head-to-head MAE 106 competition. I designed the PD heading controller and the checkpoint system that sequences it through the course.',
+    longDescription:
+      "Built by a four-person team in MAE 106 (Mechanical Systems Lab) for the end-of-quarter head-to-head class competition, the robot had to complete the course on its own, with no remote control. As the team's controller designer, I was responsible for keeping it on heading and moving it through the course in the right order.",
+    bullets: [
+      'Implemented closed-loop heading control on the microcontroller, using magnetometer feedback in a PD (proportional-derivative) loop.',
+      'Tuned the controller gains experimentally on the robot to reduce overshoot and steady-state heading drift.',
+      'Used a drivetrain-mounted limit switch as a distance sensor, giving the controller a measure of how far the robot had traveled.',
+      'Built a checkpoint system on top of the heading and distance feedback to sequence the robot through the course autonomously.',
+    ],
+    tech: ['Arduino', 'C++', 'PD Control', 'Closed-Loop Control', 'Magnetometer', 'Limit Switch'],
+    date: 'Mar 2026',
+    status: 'complete',
+    media: [
+      vid('me/autonomous-robot/moving.mp4', 'Autonomous run outdoors'),
+      vid('me/autonomous-robot/fire_slow.mp4', 'Drive mechanism actuating (slow motion)'),
+      vid('me/autonomous-robot/single_fire.mp4', 'A single actuation of the drive mechanism'),
+      vid('me/autonomous-robot/img_3513.mp4', 'Gear train turning the drive wheel'),
+      photo('me/autonomous-robot/wiring.jpg', 'Electronics: Arduino (Elegoo Uno R3) and breadboard wiring'),
+      vid('me/autonomous-robot/img_3522.mp4', 'Tuning on the bench'),
+      vid('me/autonomous-robot/challenges.mp4', 'Indoor test run'),
+    ],
+    links: {},
+  },
   {
     id: 'ninja-h2r',
     category: 'me',
@@ -109,31 +254,11 @@ export const projects: Project[] = [
     ],
     tech: ['SolidWorks', 'Surface Modeling', 'Parametric Design', 'Assembly Mates', 'SolidWorks Visualize', 'Technical Drawing'],
     date: '2024',
-    images: [
-      ph(800, 500, 'Full Assembly — Isometric'),
-      ph(800, 500, 'Fairing Surface Detail'),
-      ph(800, 500, 'Frame Sub-Assembly'),
+    media: [
+      img('me/h2r_isometric.png'),
+      img('me/h2r_fairing.png'),
+      img('me/h2r_frame.png'),
     ],
-    links: {},
-  },
-  {
-    id: 'me-placeholder',
-    category: 'me',
-    slug: 'mechanical-systems-coursework',
-    title: 'Mechanical Systems Coursework Project (Placeholder)',
-    shortDescription:
-      'Placeholder — detailed project content coming soon. Covers stress analysis, material selection, and manufacturing review.',
-    longDescription:
-      'This entry is a placeholder for an upcoming mechanical systems project. It will include FEA results, a material selection rationale, and a manufacturing process review. Content will be updated when the project writeup is complete.',
-    bullets: [
-      'Performed static and dynamic stress analysis using FEA software.',
-      'Evaluated material candidates against cost, weight, and fatigue life criteria.',
-      'Prepared engineering drawings to ASME Y14.5 GD&T standards.',
-      'Conducted manufacturing feasibility review for CNC machining and sheet-metal forming.',
-    ],
-    tech: ['ANSYS', 'SolidWorks', 'GD&T', 'FEA', 'Material Science'],
-    date: '2024',
-    images: [ph(800, 500, 'Placeholder — Coming Soon')],
     links: {},
   },
 ];
