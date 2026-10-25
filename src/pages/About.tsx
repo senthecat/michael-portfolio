@@ -1,226 +1,196 @@
 import { Link } from 'react-router-dom';
+import { SiGithub, SiLinkedin } from 'react-icons/si';
 
-// ── Skill tag ─────────────────────────────────────────────────────────────────
-function Tag({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-slate-100 text-slate-700 font-medium border border-slate-200">
-      {label}
-    </span>
-  );
-}
-
-// ── Section header ────────────────────────────────────────────────────────────
-function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="text-xl font-bold text-slate-900 mb-5 pb-3 border-b border-slate-200">
-      {children}
-    </h2>
-  );
-}
-
-// ── At a glance item ──────────────────────────────────────────────────────────
-function GlanceRow({ icon, label, value }: { icon: string; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="text-2xl leading-none mt-0.5" aria-hidden="true">{icon}</span>
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-        <p className="text-sm text-slate-800 mt-0.5">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-// ── Experience card ───────────────────────────────────────────────────────────
-interface ExperienceItem {
-  company: string;
-  role: string;
-  period: string;
-  bullets: string[];
-}
-
-function ExperienceCard({ item }: { item: ExperienceItem }) {
-  return (
-    <div className="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-3">
-        <div>
-          <h3 className="font-semibold text-slate-900">{item.company}</h3>
-          <p className="text-sm text-slate-500">{item.role}</p>
-        </div>
-        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full whitespace-nowrap self-start sm:self-auto">
-          {item.period}
-        </span>
-      </div>
-      <ul className="space-y-1.5">
-        {item.bullets.map((b, i) => (
-          <li key={i} className="flex gap-2 text-sm text-slate-600">
-            <span className="text-blue-400 mt-0.5 shrink-0" aria-hidden="true">›</span>
-            {b}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+// ── Photos ────────────────────────────────────────────────────────────────────
+// Drop files in public/assets/about/ and list them here; the photo grid stays hidden until filled in.
+// Paths need the site base, e.g. `${import.meta.env.BASE_URL}assets/about/headshot.jpg`.
+const HEADSHOT: string | null = null;
+const PHOTOS: { src: string; caption?: string }[] = [];
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-const skills = {
-  'Embedded & Firmware': ['C', 'C++', 'nRF52840', 'ESP32', 'USB HID', 'EEPROM', 'UART/SPI/I2C', 'FreeRTOS'],
-  'Electronics & PCB': ['KiCad', 'Schematic Capture', 'PCB Layout', 'SMD Soldering', 'Oscilloscope', 'Logic Analyzer'],
-  'Mechanical': ['SolidWorks', 'Surface Modeling', 'Parametric Design', 'GD&T', 'FEA', '3D Printing', 'CAD/CAM'],
-  'Software': ['Python', 'TypeScript', 'React', 'Node.js', 'Git', 'Linux', 'AWS'],
-};
+interface ExperienceItem {
+  role: string;
+  company: string;
+  period: string;
+  location: string;
+  summary: string;
+}
 
 const experience: ExperienceItem[] = [
   {
-    company: 'Amazon Web Services (AWS)',
-    role: 'Software Engineering Intern',
-    period: '2024',
-    bullets: [
-      'Worked on distributed cloud infrastructure tooling within a service team.',
-      'Contributed features and bug fixes in a fast-paced production codebase.',
-    ],
+    role: 'Software Development Engineering Intern, Amazon MSK',
+    company: 'Amazon Web Services',
+    period: 'Summer 2026',
+    location: 'Seattle, WA',
+    summary:
+      'Automated performance testing for Managed Kafka: packaged the benchmark pipeline in Docker, ran it as weekly ECS tasks, and built a 240-configuration test matrix with CloudWatch dashboards.',
   },
   {
-    company: 'Blink (Amazon subsidiary)',
-    role: 'Engineering Intern',
-    period: '2023',
-    bullets: [
-      'Worked on embedded firmware and IoT device development for smart home security cameras.',
-      'Contributed to firmware validation, hardware bring-up testing, and tooling improvements.',
-    ],
+    role: 'Software Development Engineering Intern',
+    company: 'Amazon Web Services',
+    period: 'Summer 2025',
+    location: 'Seattle, WA',
+    summary: 'Built Lambda-based workflow diagnostics and an internal React/Java dashboard for visualizing failures.',
+  },
+  {
+    role: 'App Development Intern',
+    company: 'Blink (Amazon)',
+    period: 'Summer 2024',
+    location: 'North Reading, MA',
+    summary: 'Added Siri Shortcuts to the Blink iOS app in Swift, so users can arm, disarm, and pull up live video by voice.',
   },
 ];
 
-const keyProjects = [
-  { label: 'Stenography Keyboard', to: '/projects/cs/stenography-keyboard', badge: 'CS' },
-  { label: 'ESP32 Remote Messaging System', to: '/projects/cs/esp32-remote-messaging', badge: 'CS' },
-  { label: '1984 Corvette Engine Rebuild & Swap', to: '/projects/me/corvette-engine-swap', badge: 'ME' },
-  { label: 'Autonomous Pathing Robot', to: '/projects/me/autonomous-pathing-robot', badge: 'ME' },
-  { label: 'Kawasaki Ninja H2R CAD Model', to: '/projects/me/kawasaki-ninja-h2r-cad', badge: 'ME' },
-];
+const skills: Record<string, string[]> = {
+  Mechanical: ['SolidWorks', 'Surface modeling', '3D printing', 'Engine assembly', 'EFI and fuel systems'],
+  'Embedded and controls': ['C/C++', 'nRF52840', 'ESP32', 'Arduino', 'KiCad', 'PD control', 'UART / I2C / USB HID'],
+  Software: ['Python', 'Java', 'JavaScript', 'Swift', 'React', 'AWS', 'Docker', 'Kafka', 'Git', 'Linux'],
+};
+
+// ── Small pieces ──────────────────────────────────────────────────────────────
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-5">{children}</h2>;
+}
+
+function Headshot() {
+  if (HEADSHOT) {
+    return (
+      <img
+        src={HEADSHOT}
+        alt="Michael Tranfield"
+        className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-white/10 shrink-0"
+      />
+    );
+  }
+  return (
+    <div
+      aria-hidden="true"
+      className="w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-3xl sm:text-4xl font-bold text-white/70 shrink-0"
+    >
+      MT
+    </div>
+  );
+}
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function About() {
   return (
     <main className="min-h-screen bg-slate-50">
-      {/* Header band */}
+      {/* Header */}
       <div className="bg-navy-900 py-16 px-6">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-blue-400 text-xs font-semibold uppercase tracking-[0.25em] mb-3">
-            About
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-5 tracking-tight">
-            Michael Tranfield
-          </h1>
-          <p className="text-slate-300 text-lg leading-relaxed max-w-2xl">
-            I'm an engineer that enjoys understanding the innerworkings of machinery, computers, and technology.
-          </p>
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center sm:items-center gap-8 text-center sm:text-left">
+          <Headshot />
+          <div>
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight mb-3">Michael Tranfield</h1>
+            <p className="text-slate-300 text-lg">Mechanical Engineering + Computer Science &amp; Engineering</p>
+            <p className="text-slate-400">UC Irvine · Class of 2027</p>
+            <div className="flex gap-3 mt-5 justify-center sm:justify-start">
+              <a
+                href="https://www.linkedin.com/in/michael-tranfield-28bab2294/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium border border-white/15 transition-colors duration-150"
+              >
+                <SiLinkedin size={16} aria-hidden="true" /> LinkedIn
+              </a>
+              <a
+                href="https://github.com/senthecat"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium border border-white/15 transition-colors duration-150"
+              >
+                <SiGithub size={16} aria-hidden="true" /> GitHub
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Body */}
       <div className="max-w-3xl mx-auto px-6 py-14 space-y-14">
-
-        {/* Bio */}
-        <section aria-labelledby="bio-heading">
-          <SectionHeading>Background</SectionHeading>
-          <div className="space-y-4 text-slate-700 leading-relaxed">
-            <p>
-              My engineering focus spans three closely linked domains: embedded firmware
-              (writing bare-metal C for ARM Cortex-M devices), PCB design (schematic capture
-              through fabrication in KiCad), and mechanical CAD (parametric modeling and surface
-              work in SolidWorks). Interning at AWS and Blink has given me production-grade
-              software experience to complement the hardware side.
-            </p>
-            <p>
-              I build fast, reliable systems and care deeply about the details — whether that's
-              optimizing a USB HID report loop from 20 ms down to 3 ms, or getting the
-              surface loft on a motorcycle fairing to look right.
-            </p>
-          </div>
+        {/* Intro */}
+        <section className="space-y-4 text-slate-700 text-lg leading-relaxed">
+          <p>
+            I'm a double major at UC Irvine, studying mechanical engineering and computer science &amp; engineering. I
+            graduate in 2027.
+          </p>
+          <p>
+            I like building things, and most of my projects land somewhere between the two majors. I designed and
+            soldered my own stenography keyboard, wrote the controller for an autonomous robot in my mechanical
+            systems lab, and I'm partway through an engine swap on a 1984 Corvette.
+          </p>
+          <p>
+            I've spent the last three summers at Amazon: first on the Blink iOS app, then two software engineering
+            internships at AWS, most recently on the Managed Kafka team.
+          </p>
+          <p>
+            <Link to="/" className="font-semibold text-blue-600 hover:text-blue-800">
+              See my projects →
+            </Link>
+          </p>
         </section>
 
-        {/* At a glance */}
-        <section aria-labelledby="glance-heading">
-          <SectionHeading>At a Glance</SectionHeading>
-          <div className="grid sm:grid-cols-2 gap-5 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
-            <GlanceRow icon="⚙️" label="Primary Focus" value="Embedded Systems & Firmware" />
-            <GlanceRow icon="🔌" label="Hardware" value="PCB Design, KiCad, SMD Assembly" />
-            <GlanceRow icon="📐" label="Mechanical" value="SolidWorks, Surface Modeling, FEA" />
-            <GlanceRow icon="☁️" label="Cloud / Software" value="AWS, Node.js, Python, TypeScript" />
-            <GlanceRow icon="🧠" label="Microcontrollers" value="nRF52840, ESP32, STM32" />
-            <GlanceRow icon="🛠️" label="Protocols" value="USB HID, SPI, I2C, UART, WiFi, BLE" />
+        {/* Photos */}
+        {PHOTOS.length > 0 && (
+          <section aria-label="Photos" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {PHOTOS.map((p) => (
+              <figure key={p.src}>
+                <img src={p.src} alt={p.caption ?? ''} loading="lazy" className="w-full aspect-square object-cover rounded-xl" />
+                {p.caption && <figcaption className="text-xs text-slate-500 mt-1.5">{p.caption}</figcaption>}
+              </figure>
+            ))}
+          </section>
+        )}
+
+        {/* Experience */}
+        <section aria-labelledby="experience-heading">
+          <SectionHeading>
+            <span id="experience-heading">Experience</span>
+          </SectionHeading>
+          <ol className="space-y-7">
+            {experience.map((item) => (
+              <li key={item.role + item.period}>
+                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5">
+                  <h3 className="font-semibold text-slate-900">{item.role}</h3>
+                  <span className="text-sm text-slate-500 shrink-0">{item.period}</span>
+                </div>
+                <p className="text-sm text-slate-500">
+                  {item.company} · {item.location}
+                </p>
+                <p className="text-slate-700 mt-2 leading-relaxed">{item.summary}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* Education */}
+        <section aria-labelledby="education-heading">
+          <SectionHeading>
+            <span id="education-heading">Education</span>
+          </SectionHeading>
+          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5">
+            <h3 className="font-semibold text-slate-900">University of California, Irvine</h3>
+            <span className="text-sm text-slate-500">2027</span>
           </div>
+          <p className="text-slate-700">B.S. Mechanical Engineering · B.S. Computer Science &amp; Engineering</p>
+          <p className="text-sm text-slate-500 mt-2">
+            Amazon Future Engineer Scholarship · National Society of Leadership and Success
+          </p>
         </section>
 
         {/* Skills */}
         <section aria-labelledby="skills-heading">
-          <SectionHeading>Skills & Tools</SectionHeading>
-          <div className="space-y-6">
-            {Object.entries(skills).map(([category, tags]) => (
-              <div key={category}>
-                <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">
-                  {category}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((t) => (
-                    <Tag key={t} label={t} />
-                  ))}
-                </div>
+          <SectionHeading>
+            <span id="skills-heading">Skills</span>
+          </SectionHeading>
+          <dl className="space-y-3">
+            {Object.entries(skills).map(([group, items]) => (
+              <div key={group} className="sm:flex sm:gap-6">
+                <dt className="font-semibold text-slate-900 sm:w-48 shrink-0">{group}</dt>
+                <dd className="text-slate-700">{items.join(' · ')}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         </section>
-
-        {/* Experience */}
-        <section aria-labelledby="experience-heading">
-          <SectionHeading>Experience</SectionHeading>
-          <div className="space-y-4">
-            {experience.map((item) => (
-              <ExperienceCard key={item.company} item={item} />
-            ))}
-          </div>
-        </section>
-
-        {/* Key projects */}
-        <section aria-labelledby="projects-heading">
-          <SectionHeading>Key Projects</SectionHeading>
-          <ul className="space-y-3">
-            {keyProjects.map((p) => (
-              <li key={p.to}>
-                <Link
-                  to={p.to}
-                  className="flex items-center gap-3 p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-sm group transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                >
-                  <span
-                    className={`text-xs font-bold uppercase tracking-wide px-2 py-1 rounded-full ${
-                      p.badge === 'CS'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-emerald-100 text-emerald-700'
-                    }`}
-                  >
-                    {p.badge}
-                  </span>
-                  <span className="text-slate-800 font-medium text-sm group-hover:text-blue-600 transition-colors duration-150">
-                    {p.label}
-                  </span>
-                  <svg
-                    className="w-4 h-4 text-slate-400 group-hover:text-blue-500 ml-auto transition-colors duration-150"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    aria-hidden="true"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
       </div>
     </main>
   );
